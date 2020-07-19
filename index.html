@@ -1,0 +1,151 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Override ngclipboard</title>
+
+    <link data-require="bootstrap-css@3.0.2" data-semver="3.0.2" rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
+    <link rel='stylesheet', href='./style.css'/>
+    
+</head>
+<body ng-app="override-ng-clipboard">
+
+    <div class="container" ng-controller="OverrideController">
+        <div class="center">
+            <h2>Override Angular js ng-clipboard Directive</h2>
+            <textarea placeholder="Paste here..."></textarea>
+            <clipboard-icon></clipboard-icon>
+        </div>
+    </div>
+
+    <script data-require="angular.js@*" data-semver="1.5.11" src="http://code.angularjs.org/1.5.11/angular.js"></script>
+    <script data-require="jquery@*" data-semver="1.9.1" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script data-require="bootstrap@*" data-semver="3.0.2" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script data-require="ui-bootstrap@*" data-semver="0.9.0" src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.9.0.js"></script>
+    <script src="https://cdn.rawgit.com/zenorocha/clipboard.js/v1.5.16/dist/clipboard.min.js"></script>
+    <script src="./ngclipboard.js"></script>
+    <script>
+        angular.module('override-ng-clipboard', ["ui.bootstrap", "ngclipboard"])
+
+            .run(function($rootScope) {
+                // For clipboard
+                var showTooltip = function (element, message, placement) {
+
+                placement = placement || 'left';
+                $(element).tooltip('destroy')
+                        .tooltip({ 'title' : message, placement: placement })
+                        .tooltip('fixTitle').tooltip('show');
+                }
+
+                $rootScope.onMouseLeaveClipboardBtn = function(event) {
+                    var element = event.currentTarget;
+                    $(element).tooltip('destroy');
+                }
+
+                $rootScope.onClipboardSuccess = function(e, placement) {
+                    e.clearSelection();
+                    showTooltip(e.trigger, 'Copied!', placement)
+                }
+
+                $rootScope.onClipboardError = function(e, placement) {
+                    e.clearSelection();
+                    showTooltip(e.trigger, 'No support :(', placement)
+                }
+            })
+            .directive('clipboardIcon', ["$rootScope", function ($rootScope) {
+                return {
+                    template:
+                        `<button class="btn" id="copy-icon" ngclipboard ngclipboard-success="clipboardSuccess(e);" ngclipboard-error="clipboardError(e);" 
+                            ng-mouseleave="onMouseLeaveClipboardBtn($event);" data-clipboard-text="Just because you can doesn't mean you should — clipboard.js">
+                            Copy to clipboard
+                        </button>`,
+                    restrict: "EA",
+                    replace: true,
+                    link: function (scope, element) {
+
+                        scope.clipboardSuccess = function (e) {
+                            $rootScope.onClipboardSuccess(e, "right");
+                        }
+
+                        scope.clipboardError = function (e) {
+                            $rootScope.onClipboardError(e, "right");
+                        }
+                    }
+                };
+            }])
+
+            .controller('OverrideController', ['$scope', function($scope) {
+
+                $scope.data = null;
+            }])
+
+            .decorator('ngclipboardDirective', function($delegate) {
+
+                var loadClipboard = function (scope, element) {
+
+                    scope.clipboard = new Clipboard(element);
+
+                    scope.clipboard.on('success', function(e) {
+
+                        scope.$apply(function () {
+                            scope.ngclipboardSuccess({
+                                e: e
+                            });
+                        });
+
+                        scope.clipboard.destroy();
+                        scope.clipboard = null;
+
+                    });
+
+                    scope.clipboard.on('error', function(e) {
+
+                        scope.$apply(function () {
+                            scope.ngclipboardError({
+                                e: e
+                            });
+                        });
+
+                        scope.clipboard.destroy();
+                        scope.clipboard = null;
+                    });
+                };
+
+                var reloadClipboard = function (scope, element) {
+
+                    if (!scope.clipboard) {
+                        loadClipboard(scope, element);
+                    }
+                };
+
+                $delegate[0].compile = function () {
+
+                    return function newLinkFn(scope, element) {
+
+                        loadClipboard(scope, element[0]);
+
+                        element.on('mouseenter', function () {
+                            reloadClipboard(scope, element[0]);
+                        });
+
+                        element.on('mouseleave', function () {
+                            reloadClipboard(scope, element[0]);
+                        });
+
+                        element.on('$destroy', function() {
+                            scope.clipboard && scope.clipboard.destroy();
+                        });
+                    }
+                }
+
+                // get rid of the old link function since we return a link function in compile
+                delete $delegate[0].link;
+
+                // return the $delegate
+                return $delegate;
+
+            })
+
+     </script>
+</body>
+</html>
