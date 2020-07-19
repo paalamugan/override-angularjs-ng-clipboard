@@ -78,7 +78,7 @@
 
                 $scope.data = null;
             }])
-
+            // override a existing ngclipboardDirective
             .decorator('ngclipboardDirective', function($delegate) {
 
                 var loadClipboard = function (scope, element) {
