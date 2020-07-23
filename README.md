@@ -1,4 +1,4 @@
-# override-angularjs-ng-clipboard
+# Override-angularjs-ng-clipboard
 
 Just for learning purposes. How to override a existing angularjs directive.
 
