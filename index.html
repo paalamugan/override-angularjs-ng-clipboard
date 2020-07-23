@@ -13,7 +13,7 @@
     <div class="container" ng-controller="OverrideController">
         <div class="center">
             <h2>Override Angular js ng-clipboard Directive</h2>
-            <textarea placeholder="Paste here..."></textarea>
+            <textarea placeholder="Paste copied clipboard text here..."></textarea>
             <clipboard-icon></clipboard-icon>
         </div>
     </div>
@@ -56,13 +56,21 @@
                 return {
                     template:
                         `<button class="btn" id="copy-icon" ngclipboard ngclipboard-success="clipboardSuccess(e);" ngclipboard-error="clipboardError(e);" 
-                            ng-mouseleave="onMouseLeaveClipboardBtn($event);" data-clipboard-text="Just because you can doesn't mean you should — clipboard.js">
+                            ng-mouseleave="onMouseLeaveClipboardBtn($event);" data-clipboard-text="{{text}}">
                             Copy to clipboard
                         </button>`,
                     restrict: "EA",
                     replace: true,
                     link: function (scope, element) {
-
+                        
+                        scope.text = "Lorem Ipsum is simply dummy text of the printing and \
+                                typesetting industry. Lorem Ipsum has been the industry's \
+                                standard dummy text ever since the 1500s, when an unknown \
+                                printer took a galley of type and scrambled it to make a \
+                                type specimen book. It has survived not only five centuries, \
+                                but also the leap into electronic typesetting, \
+                                remaining essentially unchanged.";
+                        
                         scope.clipboardSuccess = function (e) {
                             $rootScope.onClipboardSuccess(e, "right");
                         }
