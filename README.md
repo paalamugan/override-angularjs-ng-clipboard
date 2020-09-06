@@ -2,4 +2,4 @@
 
 Just for learning purposes. How to override a existing angularjs directive.
 
-View Demo: https://paalamugan.github.io/override-angularjs-ng-clipboard/
+View Demo: https://angularjs-clipboard.netlify.app
