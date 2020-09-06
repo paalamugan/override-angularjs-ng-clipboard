@@ -4,6 +4,12 @@ textarea {
     height: 200px;
     margin: 0 0 15px;
     font-size: 16px;
+    padding: 18px;
+}
+
+textarea:focus {
+    outline: none;
+    border: 1px solid #118fba;
 }
 
 .container {
